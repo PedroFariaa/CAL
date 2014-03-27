@@ -13,17 +13,18 @@ Edge<T>::Edge(Vertex<T> destino, int distancia){
 }
 
 template <class T>
-int Edge<T>::getDis(){
+int Edge<T>::getDistancia(){
 
 	return distancia;
 }
 
 
 template <class T>
-Vertex<T> Edge<T>::getDestino(){
+Vertex<T>* Edge<T>::getDestino(){
 
 		return destino;
 }
+
 
 
 /*

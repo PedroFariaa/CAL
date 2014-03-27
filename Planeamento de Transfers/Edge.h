@@ -6,9 +6,9 @@ public:
 
 	Edge(/*Vertex<T>origem,*/Vertex<T>destino, int distancia);
 
-	Vertex<T> getDestino();
+	Vertex<T>* getDestino();
 	//Vertex<T> getOrigem();
-	int getDis();
+	int getDistancia();
 
 private:
 
