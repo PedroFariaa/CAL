@@ -1,3 +1,5 @@
+#include <string>
+
 using namespace std;
 
 class  Local{
@@ -6,12 +8,8 @@ public:
 	Local(string name);
 	string getName();
 	void setName(string name);
+	
+private:
 	string name;
 
-private:
-
 };
-
-Local::Local(){
-	this->name="no_name";
-}

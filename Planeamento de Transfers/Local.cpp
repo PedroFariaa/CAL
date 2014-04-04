@@ -4,6 +4,10 @@
 
 using namespace std;
 
+Local::Local(){
+	this->name="no_name";
+}
+
 Local::Local(string name){
 	this->name=name;
 }
