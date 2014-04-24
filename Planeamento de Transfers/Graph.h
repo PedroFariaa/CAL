@@ -8,6 +8,13 @@ using namespace std;
 template <class T> class Edge;
 template <class T> class Graph;
 
+const int INT_INFINITY = INT_MAX;
+
+/*
+ * ================================================================================================
+ * Class Vertex
+ * ================================================================================================
+ */
 template <class T>
 class Vertex {
 	T info;
@@ -45,6 +52,11 @@ void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
 	adj.push_back(edgeD);
 }
 
+
+/* ================================================================================================
+ * Class Edge
+ * ================================================================================================
+ */
 template <class T>
 class Edge {
 	Vertex<T> * dest;
@@ -58,10 +70,19 @@ public:
 template <class T>
 Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w){}
 
+
+
+/* ================================================================================================
+ * Class Graph
+ * ================================================================================================
+ */
 template <class T>
 class Graph {
 	vector<Vertex<T> *> vertexSet;
 	void dfs(Vertex<T> *v, vector<T> &res) const;
+	int ** W;   //weight
+	int ** P;	//path
+
 public:
 	bool addVertex(const T &in);
 	bool addEdge(const T &sourc, const T &dest, double w);
@@ -72,6 +93,10 @@ public:
 	int maxNewChildren(Vertex<T> *v, T &inf) const;
 	vector<Vertex<T> * > getVertexSet() const;
 	int getNumVertex() const;
+
+	void floydWarshallShortestPath();
+	int edgeCost(int vOrigIndex, int vDestIndex);
+	vector<T> getfloydWarshallPath(const T &origin, const T &dest);
 };
 
 template <class T>
@@ -235,5 +260,101 @@ int Graph<T>::maxNewChildren(Vertex<T> *v, T &inf) const {
 	}
 	return maxChildren;
 }
+
+
+template<class T>
+void Graph<T>::floydWarshallShortestPath() {
+
+	W = new int * [vertexSet.size()];
+	P = new int * [vertexSet.size()];
+	for(unsigned int i = 0; i < vertexSet.size(); i++)
+	{
+		W[i] = new int[vertexSet.size()];
+		P[i] = new int[vertexSet.size()];
+		for(unsigned int j = 0; j < vertexSet.size(); j++)
+		{
+			W[i][j] = edgeCost(i,j);
+			P[i][j] = -1;
+		}
+	}
+
+
+	for(unsigned int k = 0; k < vertexSet.size(); k++)
+		for(unsigned int i = 0; i < vertexSet.size(); i++)
+			for(unsigned int j = 0; j < vertexSet.size(); j++)
+			{
+				//se somarmos qualquer coisa ao valor INT_INFINITY, ocorre overflow, o que resulta num valor negativo, logo nem convŽm considerar essa soma
+				if(W[i][k] == INT_INFINITY || W[k][j] == INT_INFINITY)
+					continue;
+
+				int val = min ( W[i][j], W[i][k]+W[k][j] );
+				if(val != W[i][j])
+				{
+					W[i][j] = val;
+					P[i][j] = k;
+				}
+			}
+
+}
+
+
+template<class T>
+int Graph<T>::edgeCost(int vOrigIndex, int vDestIndex)
+{
+	if(vertexSet[vOrigIndex] == vertexSet[vDestIndex])
+		return 0;
+
+	for(unsigned int i = 0; i < vertexSet[vOrigIndex]->adj.size(); i++)
+	{
+		if(vertexSet[vOrigIndex]->adj[i].dest == vertexSet[vDestIndex])
+			return vertexSet[vOrigIndex]->adj[i].weight;
+	}
+
+	return INT_INFINITY;
+}
+
+template<class T>
+vector<T> Graph<T>::getfloydWarshallPath(const T &origin, const T &dest){
+
+	int originIndex = -1, destinationIndex = -1;
+
+	for(unsigned int i = 0; i < vertexSet.size(); i++)
+	{
+		if(vertexSet[i]->info == origin)
+			originIndex = i;
+		if(vertexSet[i]->info == dest)
+			destinationIndex = i;
+
+		if(originIndex != -1 && destinationIndex != -1)
+			break;
+	}
+
+
+	vector<T> res;
+
+	//se nao foi encontrada solucao possivel, retorna lista vazia
+	if(W[originIndex][destinationIndex] == INT_INFINITY)
+		return res;
+
+	res.push_back(vertexSet[originIndex]->info);
+
+	//se houver pontos intermedios...
+	if(P[originIndex][destinationIndex] != -1)
+	{
+		int intermedIndex = P[originIndex][destinationIndex];
+
+		getfloydWarshallPathAux(originIndex, intermedIndex, res);
+
+		res.push_back(vertexSet[intermedIndex]->info);
+
+		getfloydWarshallPathAux(intermedIndex,destinationIndex, res);
+	}
+
+	res.push_back(vertexSet[destinationIndex]->info);
+
+
+	return res;
+}
+
 
 #endif

@@ -3,32 +3,28 @@
 #include <string>
 #include "Local.h"
 #include "Van.h"
+#include <vector>
 
 class Service{
 public:
-	Service(string dia, string hora, Local recolha, int n_pass, string hora_max_chegada, Van van);
-	void set_dia(string dia);
-	void set_hora(string hora);
-	void set_recolha(Local recolha);
-	void set_n_pass(int n_pass);
-	void set_hora_max_chegada(string hora_max_chegada);
+	Service(vector<Local> locais, Van van);
+	void set_locais(vector<Local> locais);
 	void set_van(Van van);
-	string get_dia();
-	string get_hora();
-	Local get_recolha();
-	int get_n_pass();
-	string get_hora_max_chegada();
+	void add_locais( Local nlocal);
+//	void set_hora_max_chegada(string hora);
+//	string get_hora_max_chegada();
+	vector<Local> get_locais();
 	Van get_van();
 	void do_service();
+	void setOverhead(int overhead);
+	int getOverhead();
 
 private:
-	string dia;
-	string hora;
-	Local recolha;
-	int n_pass;
-	string hora_max_chegada;
+	vector<Local> local;
+	//string hora_max_chegada;
 	Van van;
 	bool done;
+	int overhead;
 };
 
 
