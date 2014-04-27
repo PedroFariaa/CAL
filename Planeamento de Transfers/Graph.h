@@ -8,7 +8,7 @@ using namespace std;
 template <class T> class Edge;
 template <class T> class Graph;
 
-const int INT_INFINITY = INT_MAX;
+const int INT_INFINITY = 9999999999;
 
 /*
  * ================================================================================================
@@ -17,7 +17,7 @@ const int INT_INFINITY = INT_MAX;
  */
 template <class T>
 class Vertex {
-	T info;
+
 	vector<Edge<T>  > adj;
 	bool visited;
 	void addEdge(Vertex<T> *dest, double w);
@@ -25,6 +25,8 @@ class Vertex {
 public:
 	Vertex(T in);
 	friend class Graph<T>;
+	T info;
+	Local l;
 };
 
 
@@ -97,6 +99,7 @@ public:
 	void floydWarshallShortestPath();
 	int edgeCost(int vOrigIndex, int vDestIndex);
 	vector<T> getfloydWarshallPath(const T &origin, const T &dest);
+	Vertex<T>* getVertex(const T &v) const;
 };
 
 template <class T>
@@ -147,9 +150,9 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 	Vertex<T> *vS, *vD;
 	while (found!=2 && it!=ite ) {
 		if ( (*it)->info == sourc )
-			{ vS=*it; found++;}
+		{ vS=*it; found++;}
 		if ( (*it)->info == dest )
-			{ vD=*it; found++;}
+		{ vD=*it; found++;}
 		it ++;
 	}
 	if (found!=2) return false;
@@ -165,9 +168,9 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 	Vertex<T> *vS, *vD;
 	while (found!=2 && it!=ite ) {
 		if ( (*it)->info == sourc )
-			{ vS=*it; found++;}
+		{ vS=*it; found++;}
 		if ( (*it)->info == dest )
-			{ vD=*it; found++;}
+		{ vD=*it; found++;}
 		it ++;
 	}
 	if (found!=2) return false;
@@ -186,8 +189,8 @@ vector<T> Graph<T>::dfs() const {
 	vector<T> res;
 	it=vertexSet.begin();
 	for (; it !=ite; it++)
-	    if ( (*it)->visited==false )
-	    	dfs(*it,res);
+		if ( (*it)->visited==false )
+			dfs(*it,res);
 	return res;
 }
 
@@ -198,8 +201,8 @@ void Graph<T>::dfs(Vertex<T> *v,vector<T> &res) const {
 	typename vector<Edge<T> >::iterator it= (v->adj).begin();
 	typename vector<Edge<T> >::iterator ite= (v->adj).end();
 	for (; it !=ite; it++)
-	    if ( it->dest->visited == false )
-	    	dfs(it->dest, res);
+		if ( it->dest->visited == false )
+			dfs(it->dest, res);
 }
 
 template <class T>
@@ -354,6 +357,13 @@ vector<T> Graph<T>::getfloydWarshallPath(const T &origin, const T &dest){
 
 
 	return res;
+}
+
+template <class T>
+Vertex<T>* Graph<T>::getVertex(const T &v) const {
+	for(unsigned int i = 0; i < vertexSet.size(); i++)
+		if (vertexSet[i]->info == v) return vertexSet[i];
+	return NULL;
 }
 
 

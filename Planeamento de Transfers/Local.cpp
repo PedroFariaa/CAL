@@ -1,38 +1,22 @@
-#include <iostream>
-#include <string>
 #include "Local.h"
 
-using namespace std;
 
 Local::Local(){
-	this->name="no_name";
+	this->nome="Aeroporto";
+	this->n_pessoas=NULL;
+	this->hora="";
 }
 
-Local::Local(string name){
-	this->name=name;
-}
- string Local::getName(){
-	 return this->name;
- }
-
- void Local::setName(string name){
-	 this->name=name;
- }
-
- void Local::setHoraRecolha(){
-
-	 hora_recolha=get_hora_max_chegada()-;
- }
-
-string Local::getHoraRecolha(){
-
-	 return hora_recolha;
- }
-
-void Local::set_hora_max_chegada(string hora_max_chegada){
-		this->hora_max_chegada=hora_max_chegada;
+Local::Local(string nome, int n_pass, string hora){
+	this->nome=nome;
+	this->n_pessoas=n_pass;
+	this->hora=hora;
 }
 
-string Local::get_hora_max_chegada(){
-		return this->hora_max_chegada;
+Local::~Local()
+{
+}
+
+string Local::getNome(){
+	return this->nome;
 }
