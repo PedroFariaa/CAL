@@ -1,12 +1,11 @@
-
+#pragma once
 class Van{
+	int n_pass;
 public:
-	Van();
-	Van(int n_pass_max);
-	void setN_Max(int n);
-	int getN_Max();
-
-private:
-	int n_pass_max;
+	Van(void);
+	Van(int n_pass);
+	~Van(void);
+	int getN_pass();
+	void setN_pass(int n_pass);
 };
 

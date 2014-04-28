@@ -1,20 +1,34 @@
 #include "Local.h"
+#include "Van.h"
 #include "Graph.h"
 #include <iostream>
 
 using namespace std;
 
+#define overhead 60 //overhead em minutos
+
 Graph<Local> g;
 vector<Local*> locais;
+vector<Van> vans;
 
-void Data_Alteration_Menu(Graph<Local> g);
-void Add_Data_Menu(Graph<Local> g);
-void Remove_Data_Menu(Graph<Local> g);
-void AddVertex(Graph<Local> g);
-void AddEdge(Graph<Local>& g);
+void Data_Alteration_Menu(Graph<Local*> g);
+void Transfer_Plan_Menu(Graph<Local*> g);
+void Add_Data_Menu(Graph<Local*> g);
+void Remove_Data_Menu(Graph<Local*> g);
+void AddVertex(Graph<Local*> g);
+void AddEdge(Graph<Local*> g);
+void AddVan();
+void RemoveVertex(Graph<Local*> g);
+void RemoveEdge(Graph<Local*> g);
+void RemoveVan();
+void ShowAllVan();
+bool First_Scenario(Graph<Local*> g);
+int convertToTime(double temp);
+int TempoViagem(Local* o, Local* d);
+void Graph_Display(Graph<Local*> g);
 
-//descomentar
-void MainMenu(Graph<Local> &g){
+
+void MainMenu(Graph<Local*> &g){
 	cout <<endl << "------------------------" <<endl;
 	cout << "PLANEAMENTO DE TRANSFERS" <<endl;
 	cout << "------------------------" <<endl;
@@ -50,11 +64,11 @@ void MainMenu(Graph<Local> &g){
 }
 
 //TODO
-void Graph_Display() {
+void Graph_Display(Graph<Local*> &g) {
 }
 
 //not completed
-void Transfer_Plan_Menu(Graph<Local> graf) {
+void Transfer_Plan_Menu(Graph<Local*> graf) {
 	cout <<endl;
 	cout << "------------------------" <<endl;
 	cout << "   Calculo de Solucoes   " <<endl;
@@ -70,7 +84,7 @@ void Transfer_Plan_Menu(Graph<Local> graf) {
 
 	switch (input) {
 	case 1:
-		First_Scenario(g);
+		First_Scenario(graf);
 		break;
 	case 2:
 		//Secind_Scenario();
@@ -90,7 +104,7 @@ void Transfer_Plan_Menu(Graph<Local> graf) {
 	}
 }
 
-void Data_Alteration_Menu(Graph<Local> g) {
+void Data_Alteration_Menu(Graph<Local*> g) {
 	cout <<endl;
 	cout << "------------------------" <<endl;
 	cout << "   Alteracao de Dados   " <<endl;
@@ -123,7 +137,7 @@ void Data_Alteration_Menu(Graph<Local> g) {
 }
 
 //not completed
-void Add_Data_Menu(Graph<Local> g) {
+void Add_Data_Menu(Graph<Local*> g) {
 	cout <<endl;
 	cout << "------------------------" <<endl;
 	cout << "       Aldicionar:      " <<endl;
@@ -139,13 +153,13 @@ void Add_Data_Menu(Graph<Local> g) {
 
 	switch (input) {
 	case 1:
-		AddVertex(g);
+		//AddVertex(g);
 		break;
 	case 2:
-		AddEdge(g);
+		//AddEdge(g);
 		break;
 	case 3:
-		//AddVan();
+		AddVan();
 		break;
 	default:
 		cin.clear();
@@ -159,9 +173,7 @@ void Add_Data_Menu(Graph<Local> g) {
 	}
 }
 
-
-//descomentar
-void Remove_Data_Menu(Graph<Local> g) {
+void Remove_Data_Menu(Graph<Local*> g) {
 	cout <<endl;
 	cout << "------------------------" <<endl;
 	cout << "        Remover:        " <<endl;
@@ -177,13 +189,13 @@ void Remove_Data_Menu(Graph<Local> g) {
 
 	switch (input) {
 	case 1:
-		//RemoveVertex(g);
+		RemoveVertex(g);
 		break;
 	case 2:
-		//RemoveEdge(g);
+		RemoveEdge(g);
 		break;
 	case 3:
-		//RemoveVan();
+		RemoveVan();
 		break;
 	default:
 		cin.clear();
@@ -197,8 +209,15 @@ void Remove_Data_Menu(Graph<Local> g) {
 	}
 }
 
+//descomentar
 int main(){
-	Graph<Local> g;
+	Graph<Local*> g;
+	Local* Aeroporto = new Local("aeroporto", 0, 0);
+	g.addVertex(Aeroporto);
+	locais.push_back(Aeroporto);
+	Local* Hotel1 = new Local("nomeHotel", 10, 10.0);
+	g.addVertex(Hotel1);
+	locais.push_back(Hotel1);
 	//LoadFromFile(g);
 
 	MainMenu(g);
@@ -208,9 +227,9 @@ int main(){
 
 
 // Adicao de Dados
-void ShowAllVertex(Graph<Local> g) {
+void ShowAllVertex() {
 	for(int i=0; i<locais.size(); i++){
-		cout << i+1 << ")" << g.getVertexSet()[i] <<endl;
+		cout << i+1 << ")" << locais[i] <<endl;
 	}
 }
 
@@ -219,7 +238,8 @@ void AddVan() {
 	cout << "Define o numero maximo de passageiro para esta carrinha" <<endl;
 	int input;
 	cin >> input;
-	//Van van(input);
+	Van van(input);
+	vans.push_back(van);
 	//SaveToFile();
 }
 
@@ -227,7 +247,7 @@ void AddVan() {
 void AddEdge(Graph<Local*> g) {
 	Local* ls;
 	Local* ld;
-	ShowAllVertex(g);
+	ShowAllVertex();
 	cout << "Escolha o nome do Local de Origem:" <<endl;
 	string input;
 	cin >> input;
@@ -245,17 +265,18 @@ void AddEdge(Graph<Local*> g) {
 	cout << "Indique a distância entre os dois:" <<endl;
 	int input3;
 	cin >> input3;
-	g.addEdge(ls, ld, input3);
+	//	g.addEdge(*ls, *ld, input3);
 	//SaveToFile();
 }
+
 
 //not working
 void AddVertex(Graph<Local*> g) {
 	cout << "Escolha o nome para o novo Local:" <<endl;
 	string nome;
 	cin >> nome;
-	cout << "A hora a que as pessoas desse local têm de estar de volta ao aeroporto" <<endl;
-	string hora_max;
+	cout << "A hora a que as pessoas desse local têm de estar de volta ao aeroporto \n Use o separador (.)" <<endl;
+	double hora_max;
 	cin >> hora_max;
 	cout << "Qual o numero de passageiro a ser recolhido ?" <<endl;
 	int npass;
@@ -263,16 +284,16 @@ void AddVertex(Graph<Local*> g) {
 	Local* l = new Local(nome, npass, hora_max);
 	locais.push_back(l);
 	g.addVertex(l);
-//	SaveToFile();
+	//	SaveToFile();
 }
 
 
 // Remocao de Dados
 
 //not tested
-void RemoveVertex(Graph<Local>& g) {
+void RemoveVertex(Graph<Local*> g) {
 	Local* lr;
-	ShowAllVertex(g);
+	ShowAllVertex();
 	cout << "Escolha o nome do Local a Apagar:" <<endl;
 	string input;
 	cin >> input;
@@ -280,14 +301,23 @@ void RemoveVertex(Graph<Local>& g) {
 		if(locais[i]->getNome() == input)
 			lr = locais[i];
 	}
-	g.removeVertex(*lr);
+	//	g.removeVertex(*lr);
 }
 
+//TODO
+void RemoveEdge(Graph<Local*> g){
 
-bool First_Scenario(Graph<Local> g){
+}
+
+//TODO
+void RemoveVan(){
+
+}
+
+bool First_Scenario(Graph<Local*> g){
 	Local* l;
-	ShowAllVertex(g);
-	cout << "Escolha o nome do Local a Apagar:" <<endl;
+	ShowAllVertex();
+	cout << "Escolha o nome do Local:" <<endl;
 	string input;
 	cin >> input;
 	for(int i=0; i<locais.size(); i++){
@@ -299,12 +329,104 @@ bool First_Scenario(Graph<Local> g){
 		}
 	}
 
-	if(l->getN_Pass > v.num_lug){
+	Van v;
+	ShowAllVan();
+	cout << "Escolha o numero da Carrinha:" <<endl;
+	int input2;
+	cin >> input2;
+
+	cout << "Introduza a hora de partida do aeroporto \n Utilize o (.) como separador" <<endl;
+	double input3;
+	cin >> input3;
+
+	if(l->getN_pass() > vans[input2-1].getN_pass()){
+		cout << "A carrinha nao tem lugares suficientes!";
 		return false;
-	}else if(){
+	}else if(convertToTime(input3) > convertToTime(l->getHora()) - 2*TempoViagem(locais[0], l) ){
+		cout << "O Transfer nao vai ser feito a tempo";
+		return false;
+	}else if(convertToTime(input3) < convertToTime(l->getHora()) - (2*TempoViagem(locais[0], l)+overhead)){
+		cout << "O overhead dos passageiros sera excedido!";
 		return false;
 	}else{
+		cout << "O transfer foi feito com sucesso!";
 		return true;
 	}
+
+}
+
+vector<Vertex<Local*>> Second_Scenario(Graph<Local*> g){
 	
+	vector<Vertex<Local*>> v;
+	vector<Vertex<Local*>> v_aux;
+	Local* l;
+	ShowAllVertex();
+	cout << "Escolha o nome do Local:" <<endl;
+	string input;
+	cin >> input;
+	for(int i=0; i<locais.size(); i++){
+		if(locais[i]->getNome() == input){
+			l = locais[i];
+			break;
+		}else{
+			return false;
+		}
+	}
+
+	Van v;
+	ShowAllVan();
+	cout << "Escolha o numero da Carrinha:" <<endl;
+	int input2;
+	cin >> input2;
+
+	cout << "Introduza a hora de partida do aeroporto \n Utilize o (.) como separador" <<endl;
+	double input3;
+	cin >> input3;
+
+	if(l->getN_pass() > vans[input2-1].getN_pass()){
+		cout << "A carrinha nao tem lugares suficientes!";
+		return false;
+	}else if(convertToTime(input3) > convertToTime(l->getHora()) - 2*TempoViagem(locais[0], l) ){
+		cout << "O Transfer nao vai ser feito a tempo";
+		return false;
+	}else if(convertToTime(input3) < convertToTime(l->getHora()) - (2*TempoViagem(locais[0], l)+overhead)){
+		cout << "O overhead dos passageiros sera excedido!";
+		return false;
+	}else{
+		cout << "O transfer foi feito com sucesso!";
+		return true;
+	}
+	if(v_aux.size()>v.size()){
+		v=v_aux;
+	}
+
+	return v;
+}
+
+void ShowAllVan(){
+	for(int i=0; i<vans.size(); i++){
+		cout << i+1 << "Carrinha com " << vans[i].getN_pass() << "lugares" ;
+	}
+}
+
+int convertToTime(double temp){
+	int tempo_min = (int)(temp)*60 + temp-(int)(temp);
+	return tempo_min;
+}
+
+//Devolve o tempo (double) de viagem entre o Local de origem e o Local de destino
+int TempoViagem(Local* o, Local* d){
+	int index, index2;
+	for(int i=0; i<locais.size(); i++){
+		if(locais[i] == o){
+			index=i;
+		}
+	}
+	for(int j=0; j<locais.size(); j++){
+		if(locais[j] == d){
+			index2=j;
+		}
+	}
+	int temp = g.edgeCost(index, index2);
+	return temp;
 }

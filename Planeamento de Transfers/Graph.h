@@ -11,10 +11,10 @@ template <class T> class Graph;
 const int INT_INFINITY = 9999999999;
 
 /*
- * ================================================================================================
- * Class Vertex
- * ================================================================================================
- */
+* ================================================================================================
+* Class Vertex
+* ================================================================================================
+*/
 template <class T>
 class Vertex {
 
@@ -22,6 +22,17 @@ class Vertex {
 	bool visited;
 	void addEdge(Vertex<T> *dest, double w);
 	bool removeEdgeTo(Vertex<T> *d);
+	T getInfo(){
+		return this->info;
+	}
+
+	const Pedido& getPedido() const {
+		return pedido;
+	}
+
+	void setPedido(const Pedido& pedido) {
+		this->pedido = pedido;
+	}
 public:
 	Vertex(T in);
 	friend class Graph<T>;
@@ -56,14 +67,16 @@ void Vertex<T>::addEdge(Vertex<T> *dest, double w) {
 
 
 /* ================================================================================================
- * Class Edge
- * ================================================================================================
- */
+* Class Edge
+* ================================================================================================
+*/
 template <class T>
 class Edge {
+	Vertex<T> * orig;
 	Vertex<T> * dest;
 	double weight;
 public:
+	Edge(Vertex<T> *o, Vertex<T> *d, double w);
 	Edge(Vertex<T> *d, double w);
 	friend class Graph<T>;
 	friend class Vertex<T>;
@@ -75,9 +88,9 @@ Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w){}
 
 
 /* ================================================================================================
- * Class Graph
- * ================================================================================================
- */
+* Class Graph
+* ================================================================================================
+*/
 template <class T>
 class Graph {
 	vector<Vertex<T> *> vertexSet;
