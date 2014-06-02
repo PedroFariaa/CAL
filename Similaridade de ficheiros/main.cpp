@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <algorithm>  
+#include "Changes.h"
 
 using namespace std;
 
@@ -71,7 +73,101 @@ double Similarity(string& ref, string& comp) {
 	return res;
 }
 
+// Methods used to Track the Changes between two diferent files
+unsigned int levenshtein_distance(string &s1, string & s2) {
+	const size_t len1 = s1.size(), len2 = s2.size();
+	vector<unsigned int> col(len2 + 1), prevCol(len2 + 1);
+
+	for (unsigned int i = 0; i < prevCol.size(); i++)
+		prevCol[i] = i;
+	for (unsigned int i = 0; i < len1; i++) {
+		col[0] = i + 1;
+		for (unsigned int j = 0; j < len2; j++)
+			col[j + 1] = min(min(prevCol[1 + j] + 1, col[j] + 1),
+			prevCol[j] + (s1[i] == s2[j] ? 0 : 1));
+		col.swap(prevCol);
+	}
+	return prevCol[len2];
+}
+
+bool compareString(string s, string t) {
+	unsigned int comp = levenshtein_distance(s, t);
+	if (comp <= s.size() / 3 || comp <= t.size() / 3)
+		return true;
+
+	return false;
+}
+
+
+// Method responsable to save the tracked changes into a txt file
+void SaveDifToFile(vector<Changes> Differences){
+	string filename = "Output.txt";
+	ofstream myfile(filename.c_str());
+
+	for (unsigned int i = 0; i < Differences.size(); i++)
+		myfile << Differences[i].getChange() << endl;
+
+	myfile.close();
+}
+
+// Checks the two input files and looks for diferences between them
+// this diferences will be saved on a txt file
+void TrackChanges(vector<Changes> Differences, string tempRef, string tempComp) {
+	string L1, L2;
+	L1 = tempRef;
+	L2 = tempComp;
+
+	bool encontrou = false;
+	int cont = 0;
+	int cont2 = 0;
+	stringstream nrline;
+	string line;
+	for (unsigned int i = 0; i < L2.size(); i++) {
+		for (unsigned int d = cont; d < L1.size(); d++) {
+			if (L2[i] == L1[d]) {
+				Differences.push_back(Changes(L2, '>'));
+				encontrou = true;
+				cont++;
+				break;
+			}
+			else if (compareString(L2, L1)) {
+				line = "FA";
+				nrline << (d + 1);
+				line += nrline.str();
+				nrline.str("");
+				nrline.clear();
+				Differences.push_back(Changes(L1, '~', line));
+				line = "FN";
+				nrline << (i + 1);
+				line += nrline.str();
+				nrline.str("");
+				nrline.clear();
+				Differences.push_back(Changes(L2, '~', line));
+				encontrou = true;
+				cont++;
+				break;
+			}
+		}
+		if (!encontrou) {
+			line = "FN";
+			nrline << (i + 1);
+			line += nrline.str();
+			nrline.str("");
+			nrline.clear();
+			Differences.push_back(Changes(L2, '+', line));
+			cont2++;
+		}
+
+		encontrou = false;
+		Differences.insert(Differences.begin() + i, Changes(L1, '-', line));
+	}
+	
+	SaveDifToFile(Differences);
+}
+
+
 int main() {
+	vector<Changes> Differences;
 	string cont;
 	do{
 		string fileName = "", line = "", tempRef = "", tempComp = "";
@@ -174,23 +270,15 @@ int main() {
 			cout << "O grau de similaridade nao foi excedido" << endl;
 		}
 
+
+		TrackChanges(Differences, tempRef, tempComp);
+		std::cout << "\nAs diferencas entre os dois ficheiros introduzidos foram registadas num ficheiro txt de Output";
 		getchar();
-		getchar();
 
-		//trackchanges
+		cout << endl << "\n\nQuer comparar ficheiros diferentes ?" << endl << "R: ";
+		cin >> cont;
 
-		//implement recursivity to checks other files without closing the console
-
-		do{
-			cout << endl << "Quer comparar ficheiros diferentes ?" << endl << "R: ";
-			cin >> cont;
-			if (cont != "N" || cont != "Y" || cont != "n" || cont != "y"){
-				cout << "A opcao introduzida nao e valida. Introduza 'Y' ou 'N'" << endl;
-			}
-		} while (cont != "N" || cont != "Y" || cont != "n" || cont != "y");
-		
-
-	}while (cont != "N" || cont != "n");
+	}while (cont == "Y" || cont == "y");
 
 	return 0;
 }
