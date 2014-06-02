@@ -3,7 +3,9 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <algorithm>  
+#include <algorithm> 
+#include <stdio.h>
+#include <time.h>
 #include "Changes.h"
 
 using namespace std;
@@ -167,6 +169,8 @@ void TrackChanges(vector<Changes> Differences, string tempRef, string tempComp) 
 
 
 int main() {
+	float tempo;
+	time_t t_ini, t_fim;
 	vector<Changes> Differences;
 	string cont;
 	do{
@@ -259,7 +263,9 @@ int main() {
 
 		tempRef = ReferenceFileContent;
 		tempComp = ComparisationFileContent;
+		t_ini = time(NULL);
 		limSimilarity = Similarity(tempRef, tempComp) * 100.0;
+		t_fim = time(NULL);
 		cout << limSimilarity << "% ";
 
 		if (limSimilarity > maxSimilarity) {
@@ -270,9 +276,12 @@ int main() {
 			cout << "O grau de similaridade nao foi excedido" << endl;
 		}
 
+		tempo = difftime(t_fim, t_ini);
+		cout << "\n\ntempo:" << tempo;
 
 		TrackChanges(Differences, tempRef, tempComp);
-		std::cout << "\nAs diferencas entre os dois ficheiros introduzidos foram registadas num ficheiro txt de Output";
+
+		std::cout << "\n\nAs diferencas entre os dois ficheiros introduzidos foram registadas num ficheiro txt de Output";
 		getchar();
 
 		cout << endl << "\n\nQuer comparar ficheiros diferentes ?" << endl << "R: ";
