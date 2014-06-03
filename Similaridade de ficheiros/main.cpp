@@ -112,58 +112,36 @@ void SaveDifToFile(vector<Changes> Differences){
 	myfile.close();
 }
 
-// Checks the two input files and looks for diferences between them
-// this diferences will be saved on a txt file
 void TrackChanges(vector<Changes> Differences, string tempRef, string tempComp) {
 	string L1, L2;
 	L1 = tempRef;
 	L2 = tempComp;
 
 	bool encontrou = false;
-	int cont = 0;
 	int cont2 = 0;
 	stringstream nrline;
 	string line;
-	for (unsigned int i = 0; i < L2.size(); i++) {
-		for (unsigned int d = cont; d < L1.size(); d++) {
-			if (L2[i] == L1[d]) {
-				Differences.push_back(Changes(L2, '>'));
-				encontrou = true;
-				cont++;
-				break;
-			}
-			else if (compareString(L2, L1)) {
-				line = "FA";
-				nrline << (d + 1);
-				line += nrline.str();
-				nrline.str("");
-				nrline.clear();
-				Differences.push_back(Changes(L1, '~', line));
-				line = "FN";
-				nrline << (i + 1);
-				line += nrline.str();
-				nrline.str("");
-				nrline.clear();
-				Differences.push_back(Changes(L2, '~', line));
-				encontrou = true;
-				cont++;
-				break;
-			}
-		}
-		if (!encontrou) {
-			line = "FN";
-			nrline << (i + 1);
-			line += nrline.str();
-			nrline.str("");
-			nrline.clear();
-			Differences.push_back(Changes(L2, '+', line));
-			cont2++;
-		}
+	if (L2 == L1) {
+		Differences.push_back(Changes(L2, '>'));
+		encontrou = true;
+	}
+	else if (compareString(L2, L1)) {
+		nrline.clear();
+		Differences.push_back(Changes(L1, '~', line));
+		nrline.clear();
+		Differences.push_back(Changes(L2, '~', line));
+		encontrou = true;
+	}
 
-		encontrou = false;
-		Differences.insert(Differences.begin() + i, Changes(L1, '-', line));
+	if (!encontrou){
+		nrline.clear();
+		Differences.push_back(Changes(L2, '+', line));
+		cont2++;
 	}
 	
+
+	Differences.insert(Differences.begin(), Changes(L1, '-', line));
+
 	SaveDifToFile(Differences);
 }
 
@@ -182,7 +160,7 @@ int main() {
 		stringstream testReferenceFile, testComparisationFile;
 		//files content
 		string ReferenceFileContent, ComparisationFileContent;
-		//maximum similarity introduced by the user
+		//maximum similarity introduced by the userx
 		double maxSimilarity;
 		//similarity between files
 		double limSimilarity;
@@ -190,30 +168,30 @@ int main() {
 		bool exceeds = false;
 
 		//choosing the reference file
-		cout << endl << endl;
+		std::cout << endl << endl;
 		do {
-			cout << "Escreva o nome do ficheiro de referencia ";
-			cin >> fileName;
+			std::cout << "Escreva o nome do ficheiro de referencia ";
+			std::cin >> fileName;
 			referenceFile.open(fileName.c_str());
 			if (!referenceFile.fail()) {
-				cout << "Ficheiro aberto com sucesso!" << endl << endl;
+				std::cout << "Ficheiro aberto com sucesso!" << endl << endl;
 			}
 			else {
-				cout << "Ficheiro nao existe!" << endl << endl;
+				std::cout << "Ficheiro nao existe!" << endl << endl;
 			}
 		} while (referenceFile.fail());
 
 		//choosing the file to be compared
-		cout << endl << endl;
+		std::cout << endl << endl;
 		do {
-			cout << "Escreva o nome do ficheiro a ser comparado ";
-			cin >> fileName;
+			std::cout << "Escreva o nome do ficheiro a ser comparado ";
+			std::cin >> fileName;
 			comparisationFile.open(fileName.c_str());
 			if (!comparisationFile.fail()) {
-				cout << "Ficheiro aberto com sucesso!" << endl << endl;
+				std::cout << "Ficheiro aberto com sucesso!" << endl << endl;
 			}
 			else {
-				cout << "Ficheiro nao existe!" << endl << endl;
+				std::cout << "Ficheiro nao existe!" << endl << endl;
 			}
 		} while (comparisationFile.fail());
 
@@ -254,10 +232,10 @@ int main() {
 
 		//chooses the maximum similarity before it's considered plagiarism
 		do {
-			cout << "Escreva o grau maximo de similaridade admissivel (1-100): ";
-			cin >> maxSimilarity;
+			std::cout << "Escreva o grau maximo de similaridade admissivel (1-100): ";
+			std::cin >> maxSimilarity;
 			if (maxSimilarity < 1 || maxSimilarity > 100) {
-				cout << "O grau de similaridade introduzido nao e valido!" << endl << endl;
+				std::cout << "O grau de similaridade introduzido nao e valido!" << endl << endl;
 			}
 		} while (maxSimilarity < 1 || maxSimilarity > 100);
 
@@ -270,24 +248,24 @@ int main() {
 
 		if (limSimilarity > maxSimilarity) {
 			exceeds = true;
-			cout << "O grau de similaridade foi excedido" << endl;
+			std::cout << "O grau de similaridade foi excedido" << endl;
 		}
 		else {
-			cout << "O grau de similaridade nao foi excedido" << endl;
+			std::cout << "O grau de similaridade nao foi excedido" << endl;
 		}
 
 		tempo = difftime(t_fim, t_ini);
-		cout << "\n\ntempo:" << tempo;
+		std::cout << "\n\ntempo:" << tempo;
 
 		TrackChanges(Differences, tempRef, tempComp);
 
 		std::cout << "\n\nAs diferencas entre os dois ficheiros introduzidos foram registadas num ficheiro txt de Output";
 		getchar();
 
-		cout << endl << "\n\nQuer comparar ficheiros diferentes ?" << endl << "R: ";
-		cin >> cont;
+		std::cout << endl << "\n\nQuer comparar ficheiros diferentes ?" << endl << "R: ";
+		std::cin >> cont;
 
-	}while (cont == "Y" || cont == "y");
+	} while (cont == "Y" || cont == "y");
 
 	return 0;
 }
